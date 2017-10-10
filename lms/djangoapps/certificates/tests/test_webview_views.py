@@ -244,9 +244,8 @@ class CertificatesViewsTests(CommonCertificatesTestCase):
     def setUp(self):
         super(CertificatesViewsTests, self).setUp()
         self.mock_course_run_details = {
-            'content_language': 'en',
-            'start': '2013-02-05T05:00:00Z',
-            'end': '2013-03-05T05:00:00Z',
+            'language': 'en',
+            'weeks_to_complete': '4',
             'max_effort': '10'
         }
 
@@ -1078,7 +1077,7 @@ class CertificatesViewsTests(CommonCertificatesTestCase):
         wrong_language = 'fr'
         mock_get_org_id.return_value = 1
         course_run_details = self.mock_course_run_details
-        course_run_details.update({'content_language': 'es'})
+        course_run_details.update({'language': 'es'})
         mock_get_course_run_details.return_value = course_run_details
 
         CertificateGenerationCourseSetting.set_language_specific_templates_enabled_for_course(self.course.id, True)
@@ -1124,7 +1123,7 @@ class CertificatesViewsTests(CommonCertificatesTestCase):
         wrong_language = 'fr'
         mock_get_org_id.return_value = 1
         course_run_details = self.mock_course_run_details
-        course_run_details.update({'content_language': 'es'})
+        course_run_details.update({'language': 'es'})
         mock_get_course_run_details.return_value = course_run_details
         CertificateGenerationCourseSetting.set_language_specific_templates_enabled_for_course(self.course.id, True)
 
@@ -1168,7 +1167,7 @@ class CertificatesViewsTests(CommonCertificatesTestCase):
         wrong_language = 'fr'
         mock_get_org_id.return_value = 1
         course_run_details = self.mock_course_run_details
-        course_run_details.update({'content_language': 'es'})
+        course_run_details.update({'language': 'es'})
         mock_get_course_run_details.return_value = course_run_details
         CertificateGenerationCourseSetting.set_language_specific_templates_enabled_for_course(self.course.id, True)
 
@@ -1211,7 +1210,7 @@ class CertificatesViewsTests(CommonCertificatesTestCase):
         wrong_language = 'fr'
         mock_get_org_id.return_value = 1
         course_run_details = self.mock_course_run_details
-        course_run_details.update({'content_language': 'es'})
+        course_run_details.update({'language': 'es'})
         mock_get_course_run_details.return_value = course_run_details
         CertificateGenerationCourseSetting.set_language_specific_templates_enabled_for_course(self.course.id, True)
 
@@ -1254,7 +1253,7 @@ class CertificatesViewsTests(CommonCertificatesTestCase):
         wrong_language = 'fr'
         mock_get_org_id.return_value = 1
         course_run_details = self.mock_course_run_details
-        course_run_details.update({'content_language': 'es-419'})
+        course_run_details.update({'language': 'es-419'})
         mock_get_course_run_details.return_value = course_run_details
         CertificateGenerationCourseSetting.set_language_specific_templates_enabled_for_course(self.course.id, True)
 
@@ -1294,7 +1293,6 @@ class CertificatesViewsTests(CommonCertificatesTestCase):
         """
         mock_get_course_run_details.return_value = self.mock_course_run_details
         CertificateGenerationCourseSetting.set_include_hours_of_effort_for_course(self.course.id, True)
-        CertificateGenerationCourseSetting.set_language_specific_templates_enabled_for_course(self.course.id, True)
         self._add_course_certificates(count=1, signatory_count=2)
         self._create_custom_template_with_hours_of_effort(org_id=1, language=None)
         with patch.dict("django.conf.settings.FEATURES", {

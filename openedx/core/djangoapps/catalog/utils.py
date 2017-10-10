@@ -236,7 +236,7 @@ def get_course_run_details(course_run_key, fields):
 
         cache_key = '{base}.course_runs'.format(base=catalog_integration.CACHE_KEY)
 
-        course_run_details = get_edx_api_data(catalog_integration, 'course_runs', api, resource_id=course_run_key,
+        course_run_details = get_edx_api_data(catalog_integration, 'search/course_runs', api, resource_id=course_run_key,
                                               cache_key=cache_key, many=False, traverse_pagination=False, fields=fields)
     else:
         msg = 'Unable to retrieve details about course_run {} because Catalog Integration is not enabled'.format(
