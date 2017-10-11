@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 
 GRADING_POLICY_COUNTDOWN_SECONDS = 1800
 
+
 @receiver(SignalHandler.course_published)
 def listen_for_course_publish(sender, course_key, **kwargs):  # pylint: disable=unused-argument
     """
