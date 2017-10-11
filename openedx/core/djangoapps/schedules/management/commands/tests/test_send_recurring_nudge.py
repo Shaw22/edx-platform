@@ -291,13 +291,13 @@ class TestSendRecurringNudge(CacheIsolationTestCase):
     def test_user_with_verified_coursemode_receives_upsell(self):
         user = UserFactory.create()
         course_id = CourseLocator('edX', 'toy', 'Course1')
-        
+
         first_day_of_schedule = datetime.datetime.now(pytz.UTC)
         verification_deadline = first_day_of_schedule + datetime.timedelta(days=21)
         target_hour = first_day_of_schedule
         target_hour_as_string = serialize(target_hour)
         nudge_day = 3
-        
+
         schedule = ScheduleFactory.create(start=first_day_of_schedule,
                                           enrollment__user=user,
                                           enrollment__course__id=course_id)
@@ -363,12 +363,13 @@ class TestSendRecurringNudge(CacheIsolationTestCase):
 
             mock_schedule_send.apply_async = lambda args, *_a, **_kw: sent_messages.append(args)
 
-            bin_task(self.site_config.site.id,
-                     target_day_str=bin_task_params[0],
-                     day_offset=bin_task_params[1],
-                     bin_num=self._calculate_bin_for_user(bin_task_params[2]),
-                     org_list=[bin_task_params[3]]
-             )
+            bin_task(
+                self.site_config.site.id,
+                target_day_str=bin_task_params[0],
+                day_offset=bin_task_params[1],
+                bin_num=self._calculate_bin_for_user(bin_task_params[2]),
+                org_list=[bin_task_params[3]]
+            )
 
         return sent_messages
 
