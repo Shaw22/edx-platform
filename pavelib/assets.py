@@ -93,6 +93,9 @@ COLLECTSTATIC_LOG_DIR_ARG = 'collect_log_dir'
 # Webpack command
 WEBPACK_COMMAND = 'STATIC_ROOT_LMS={static_root_lms} STATIC_ROOT_CMS={static_root_cms} $(npm bin)/webpack {options}'
 
+# Bootstrap directory for CSS files
+BOOTSTRAP_CSS_DIR_NAME = 'bootstrap/'
+
 
 def get_sass_directories(system, theme_dir=None):
     """
@@ -596,6 +599,27 @@ def _compile_sass(system, theme, debug, force, timing_info):
                 source_comments=source_comments,
                 output_style=output_style,
             )
+
+            # For Bootstrap files, post-process CSS files to add RTL rules
+            for css_file in glob.glob(css_dir + '/**/*.css'):
+                if BOOTSTRAP_CSS_DIR_NAME in css_file:
+                    # Rename the CSS file to be a .raw file
+                    raw_css_file = css_file.replace('.css', '.css.raw')
+                    sh("mv {source_file} {target_file}".format(
+                        source_file=css_file,
+                        target_file=raw_css_file,
+                    ))
+
+                    # Process the .raw file to generate the CSS file
+                    sh("rtlcss {source_file} {target_file}".format(
+                        source_file=raw_css_file,
+                        target_file=css_file,
+                    ))
+
+                    # Remove the raw file
+                    # TODO: add this back before merging!
+                    # os.remove(raw_css_file)
+
             duration = datetime.now() - start
             timing_info.append((sass_source_dir, css_dir, duration))
     return True
