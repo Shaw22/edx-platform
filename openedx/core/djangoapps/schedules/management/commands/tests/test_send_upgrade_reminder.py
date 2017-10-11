@@ -35,10 +35,9 @@ NUM_QUERIES_WITH_MATCHES = NUM_QUERIES_NO_MATCHING_SCHEDULES + 1
 # 4) Also check the waffle flag
 NUM_QUERIES_WITH_MATCHES_AND_WAFFLE = NUM_QUERIES_WITH_MATCHES + 1
 
-# 1) Course-specific dynamic deadline opt-out
-# 2) Global dynamic deadline switch
-# 3) E-commerce configuration
-NUM_QUERIES_PER_MESSAGE = 3
+# 1) Global dynamic deadline switch
+# 2) E-commerce configuration
+NUM_QUERIES_WITH_DEADLINE = 2
 
 
 @ddt.ddt
@@ -47,6 +46,8 @@ NUM_QUERIES_PER_MESSAGE = 3
             "Can't test schedules if the app isn't installed")
 class TestUpgradeReminder(CacheIsolationTestCase):
     # pylint: disable=protected-access
+
+    ENABLED_CACHES = ['default']
 
     def setUp(self):
         super(TestUpgradeReminder, self).setUp()
@@ -286,7 +287,9 @@ class TestUpgradeReminder(CacheIsolationTestCase):
             with patch.object(tasks, '_upgrade_reminder_schedule_send') as mock_schedule_send:
                 mock_schedule_send.apply_async = lambda args, *_a, **_kw: sent_messages.append(args)
 
-                num_expected_queries = NUM_QUERIES_WITH_MATCHES_AND_WAFFLE + (message_count * NUM_QUERIES_PER_MESSAGE)
+                # we execute one query per course to see if it's opted out of dynamic upgrade deadlines, however,
+                # since we create a new course for each schedule in this test, we expect there to be one per message
+                num_expected_queries = NUM_QUERIES_WITH_MATCHES_AND_WAFFLE + NUM_QUERIES_WITH_DEADLINE + message_count
                 with self.assertNumQueries(num_expected_queries):
                     tasks.upgrade_reminder_schedule_bin(
                         self.site_config.site.id, target_day_str=test_time_str, day_offset=day,
