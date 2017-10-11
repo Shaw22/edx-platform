@@ -46,11 +46,11 @@ POLICY_CHANGE_GRADES_EXPIRY = 60 * 60 * 24
 RECALCULATE_GRADE_DELAY = 2  # in seconds, to prevent excessive _has_db_updated failures. See TNL-6424.
 
 
-def locked_task(expiry_seconds):
+def locked_task(expiry_seconds, key):
     def task_decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            cache_key = '{}-{}'.format(func.__name__, kwargs['course_key'])
+            cache_key = '{}-{}'.format(func.__name__, kwargs[key])
             if cache.add(cache_key, "true", expiry_seconds):
                 try:
                     func(*args, **kwargs)
@@ -68,7 +68,7 @@ class _BaseTask(PersistOnFailureTask, LoggedTask):  # pylint: disable=abstract-m
 
 
 @task(base=_BaseTask, routing_key=settings.POLICY_CHANGE_GRADES_ROUTING_KEY, )
-@locked_task(expiry_seconds=POLICY_CHANGE_GRADES_EXPIRY)
+@locked_task(expiry_seconds=POLICY_CHANGE_GRADES_EXPIRY, key='course_key')
 def compute_all_grades_for_course(**kwargs):
     """
     Compute grades for all students in the specified course.

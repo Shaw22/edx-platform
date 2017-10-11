@@ -23,7 +23,8 @@ from lms.djangoapps.grades.tasks import (
     RECALCULATE_GRADE_DELAY,
     _course_task_args,
     compute_grades_for_course_v2,
-    recalculate_subsection_grade_v3
+    recalculate_subsection_grade_v3,
+    compute_all_grades_for_course
 )
 from openedx.core.djangoapps.content.block_structure.exceptions import BlockStructureNotFound
 from student.models import CourseEnrollment, anonymous_id_for_user
@@ -446,3 +447,26 @@ class ComputeGradesForCourseTest(HasCourseWithProblemsMixin, ModuleStoreTestCase
             self.assertEqual(batch_size, test_batch_size)
             self.assertEqual(offset, offset_expected)
             offset_expected += test_batch_size
+
+
+@ddt.ddt
+class LockedTaskTest(ModuleStoreTestCase):
+    def setUp(self):
+        super(LockedTaskTest, self).setUp()
+        self.course = CourseFactory.create(
+            org='edx',
+            name='course',
+            run='run',
+        )
+        self.user = UserFactory.create()
+        CourseEnrollment.enroll(self.user, self.course.id)
+
+    @patch('lms.djangoapps.grades.tasks.cache.add')
+    @patch('lms.djangoapps.grades.tasks.cache.delete')
+    @patch('lms.djangoapps.grades.tasks.compute_grades_for_course_v2')
+    @ddt.data(True, False)
+    def test_locked_task(self, cache_open, compute_mock, delete_mock, add_mock):
+        add_mock.return_value = cache_open
+        compute_all_grades_for_course(course_key=unicode(self.course.id))
+        self.assertEqual(compute_mock.apply_async.called, cache_open)
+        self.assertEqual(delete_mock.called, cache_open)

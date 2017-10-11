@@ -19,6 +19,7 @@ from xmodule.modulestore.django import SignalHandler, modulestore
 
 log = logging.getLogger(__name__)
 
+GRADING_POLICY_COUNTDOWN_SECONDS = 1800
 
 @receiver(SignalHandler.course_published)
 def listen_for_course_publish(sender, course_key, **kwargs):  # pylint: disable=unused-argument
@@ -100,7 +101,7 @@ def handle_grading_policy_changed(sender, **kwargs):
         'event_transaction_id': unicode(get_event_transaction_id()),
         'event_transaction_type': unicode(get_event_transaction_type()),
     }
-    result = compute_all_grades_for_course.apply_async(kwargs=kwargs, countdown=1800)
+    result = compute_all_grades_for_course.apply_async(kwargs=kwargs, countdown=GRADING_POLICY_COUNTDOWN_SECONDS)
     log.info("Grades: Created {task_name}[{task_id}] with arguments {kwargs}".format(
         task_name=compute_all_grades_for_course.name,
         task_id=result.task_id,
