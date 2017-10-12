@@ -236,7 +236,7 @@ def cert_info(user, course_overview, course_mode):
         dict: A dictionary with keys:
             'status': one of 'generating', 'downloadable', 'notpassing', 'processing', 'restricted'
             'show_download_url': bool
-            'certificate_message_viewable': bool -- if certificates are viewable
+            'certificate_hidden': bool -- if certificates are viewable
             'download_url': url, only present if show_download_url is True
             'show_disabled_download_button': bool -- true if state is 'generating'
             'show_survey_button': bool
